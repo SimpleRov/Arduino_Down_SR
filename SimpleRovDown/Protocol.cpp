@@ -1,3 +1,8 @@
+/******************************************************************************
+     * Based on the file Protocol.cpp project Multiwii. 
+     * You can find this project on the link - https://github.com/multiwii/multiwii-firmware
+******************************************************************************/
+
 //*******************************  Библиотеки  ******************************//
 #include "Arduino.h"
 

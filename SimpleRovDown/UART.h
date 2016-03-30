@@ -1,3 +1,8 @@
+/******************************************************************************
+     * Based on the file Serial.h project Multiwii. 
+     * You can find this project on the link - https://github.com/multiwii/multiwii-firmware
+******************************************************************************/
+
 #ifndef UART_H_
 #define UART_H_
 
