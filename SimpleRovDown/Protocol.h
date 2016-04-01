@@ -1,6 +1,10 @@
 /******************************************************************************
      * Based on the file Protocol.h project Multiwii. 
-     * You can find this project on the link - https://github.com/multiwii/multiwii-firmware
+     * Author project Multiwii - Alexandre Dubus.
+     * Version on commit e957a70 on 24 Feb 2016.
+     * Project description Multiwii - http://www.multiwii.com. 
+     * You can find the code of the Multiwii project here - https://github.com/multiwii/multiwii-firmware.
+     * License GNU GPL v3
 ******************************************************************************/
 
 #ifndef PROTOCOL_H_
@@ -10,17 +14,7 @@ void InitUart(void);
 
 void CheckUart(void);
 
-void Serialize8(uint8_t a);
-
-void Serialize16(int16_t a);
-
-void Serialize32(uint32_t a);
-
-void SerializeStruct(uint8_t *cb,uint8_t siz);
-
-void HeadCmdSend(uint8_t err, uint8_t s, uint8_t c);
-
-void TailCmdSend(void);
+void SendStruct(uint8_t *st,uint8_t siz, uint8_t c);
 
 #endif /* PROTOCOL_H_ */
 

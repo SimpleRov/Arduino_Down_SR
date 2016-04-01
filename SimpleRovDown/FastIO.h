@@ -1,6 +1,10 @@
 /******************************************************************************
      * Based on the file fastio.h project Marlin. 
-     * You can find this project on the link - https://github.com/MarlinFirmware/Marlin
+     * Author project Marlin - Erik van der Zalm (Email - erik@vdzalm.eu).
+     * Version on commit 122bdd1 25 Mar 2016.
+     * Project description Marlin - http://reprap.org/wiki/Marlin. 
+     * You can find the code of the Marlin project here - https://github.com/MarlinFirmware/Marlin.
+     * License GNU GPL v3
 ******************************************************************************/
 
 #ifndef FastIO_H_
@@ -64,11 +68,11 @@
 
 #define MC_SET_PIN_OUTPUT(IO) MC_SET_PIN_OUTPUT_(IO)
 
-#define MC_SET_PIN_OUTPUT_AND_LOW(IO) (MC_SET_PIN_OUTPUT(IO) MC_WRITE_PIN(IO, 0))
-
 #define MC_GET_PIN_INPUT(IO) MC_GET_PIN_INPUT_(IO)
 
 #define MC_GET_PIN_OUTPUT(IO) MC_GET_PIN_OUTPUT_(IO)
+
+#define MC_SET_PIN_OUTPUT_SET_PIN(IO, v) (MC_SET_PIN_OUTPUT(IO) MC_WRITE_PIN(IO, v))
 
 #if defined (__AVR_ATmega168__) || defined (__AVR_ATmega328__) || defined (__AVR_ATmega328P__)
 //Pins

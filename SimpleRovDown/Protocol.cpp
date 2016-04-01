@@ -1,6 +1,15 @@
 /******************************************************************************
      * Based on the file Protocol.cpp project Multiwii. 
-     * You can find this project on the link - https://github.com/multiwii/multiwii-firmware
+     * Author project Multiwii - Alexandre Dubus.
+     * Version on commit e957a70 on 24 Feb 2016.
+     * Project description Multiwii - http://www.multiwii.com. 
+     * You can find the code of the Multiwii project here - https://github.com/multiwii/multiwii-firmware.
+     * License GNU GPL v3
+******************************************************************************/
+
+/******************************************************************************
+ * TODO: Продумать работу с ошибками.
+ * TODO: Подумать какие глобальные переменные можно перенести в локальные.
 ******************************************************************************/
 
 //*******************************  Библиотеки  ******************************//
@@ -36,19 +45,19 @@ void InitUart(void)
   UARTOpen(UART_PORT, UART_PORT_SPEED);
 }
 
-void Serialize8(uint8_t a) 
+static void Serialize8(uint8_t a) 
 {
   UARTSerialize(CurrentUARTPortSend,a);
   CmdCheckSum[CurrentUARTPortSend] ^= a;
 }
 
-void Serialize16(int16_t a) 
+static void Serialize16(int16_t a) 
 {
   Serialize8((a   ) & 0xFF);
   Serialize8((a>>8) & 0xFF);
 }
 
-void Serialize32(uint32_t a) 
+static void Serialize32(uint32_t a) 
 {
   Serialize8((a    ) & 0xFF);
   Serialize8((a>> 8) & 0xFF);
@@ -56,7 +65,7 @@ void Serialize32(uint32_t a)
   Serialize8((a>>24) & 0xFF);
 }
 
-void SerializeStruct(uint8_t *cb,uint8_t siz) 
+static void SerializeStruct(uint8_t *cb,uint8_t siz) 
 {
   while(siz--) 
   {
@@ -64,7 +73,7 @@ void SerializeStruct(uint8_t *cb,uint8_t siz)
   }
 }
 
-void HeadCmdSend(uint8_t err, uint8_t s, uint8_t c) 
+static void HeadCmdSend(uint8_t s, uint8_t c) 
 {
   Serialize8('?');
   Serialize8('C');
@@ -75,32 +84,32 @@ void HeadCmdSend(uint8_t err, uint8_t s, uint8_t c)
   Serialize8(c);
 }
 
-void TailCmdSend(void) 
+static void TailCmdSend(void) 
 {
   Serialize8(CmdCheckSum[CurrentUARTPortSend]);
   UARTSendData(CurrentUARTPortSend);
 }
 
-uint8_t Read8(void)  
+static uint8_t Read8(void)  
 {
   return InBuffer[IndexBuffer[CurrentUARTPortRead]++][CurrentUARTPortRead]&0xff;
 }
 
-uint16_t Read16(void) 
+static uint16_t Read16(void) 
 {
   uint16_t t = Read8();
   t+= (uint16_t)Read8()<<8;
   return t;
 }
 
-uint32_t Read32(void) 
+static uint32_t Read32(void) 
 {
   uint32_t t = Read16();
   t+= (uint32_t)Read16()<<16;
   return t;
 }
 
-void ReadStruct(uint8_t *cb,uint8_t siz) 
+static void ReadStruct(uint8_t *cb,uint8_t siz) 
 {
   while(siz--) 
   {
@@ -108,7 +117,7 @@ void ReadStruct(uint8_t *cb,uint8_t siz)
   }
 }
 
-void EvaluateCommand(void) 
+static void EvaluateCommand(void) 
 {   
   switch(Cmd[CurrentUARTPortRead])
   {
@@ -119,6 +128,15 @@ void EvaluateCommand(void)
       ReadStruct((uint8_t*)&rovDataS, 1);
       break;
   }    
+}
+
+void SendStruct(uint8_t *st, uint8_t siz, uint8_t c)
+{
+  HeadCmdSend(siz, c);
+                        
+  SerializeStruct(st, siz);
+
+  TailCmdSend(); 
 }
 
 void CheckUart(void)

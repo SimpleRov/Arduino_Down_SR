@@ -1,6 +1,10 @@
 /******************************************************************************
      * Based on the file Serial.h project Multiwii. 
-     * You can find this project on the link - https://github.com/multiwii/multiwii-firmware
+     * Author project Multiwii - Alexandre Dubus.
+     * Version on commit e957a70 on 24 Feb 2016.
+     * Project description Multiwii - http://www.multiwii.com. 
+     * You can find the code of the Multiwii project here - https://github.com/multiwii/multiwii-firmware.
+     * License GNU GPL v3
 ******************************************************************************/
 
 #ifndef UART_H_

@@ -119,13 +119,9 @@ void loop()
 
 //************************** Функции ответа Rov по UART **********************//
 void RovSendAnswer(void)
-{     
-  HeadCmdSend(0, 1, 2);
-        
-  rovDataS.errore = 1;
-                  
-  SerializeStruct((uint8_t*)&rovDataS, 1);
+{ 
+  rovDataS.errore = 1;    
 
-  TailCmdSend();
+  SendStruct((uint8_t*)&rovDataS, 1, 2);
 }
 //************************** /Функции ответа Rov по UART *********************//

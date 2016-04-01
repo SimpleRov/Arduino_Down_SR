@@ -1,6 +1,10 @@
 /******************************************************************************
      * Based on the file Serial.cpp project Multiwii. 
-     * You can find this project on the link - https://github.com/multiwii/multiwii-firmware
+     * Author project Multiwii - Alexandre Dubus.
+     * Version on commit e957a70 on 24 Feb 2016.
+     * Project description Multiwii - http://www.multiwii.com. 
+     * You can find the code of the Multiwii project here - https://github.com/multiwii/multiwii-firmware.
+     * License GNU GPL v3
 ******************************************************************************/
 
 //*******************************  Библиотеки  ******************************//
@@ -264,18 +268,16 @@ static inline void StoreUARTInBuf(uint8_t data, uint8_t port)
   
   // Получаем номер "головы массива" RX
   uint8_t h = UARTHeadRX[port];
+  
+  // Сохраняем полученный байт в буфер RX для хранения данных
+  UARTBufferRX[h++][port] = data;
+  
   // Проверяем, увеличивая номер "головы массива" RX головы на 1 и если номер "головы массива", станет равным или больше размера буфера, обнуляем переменную h в 0 
-  if (++h >= RXBufferSize) 
+  if (h >= RXBufferSize) 
   {
     h = 0;
   }
-  // Проверяем номер "головы массива" RX и номер "хвоста массива" RX если равен, это ошибка
-  if (h == UARTTailRX[port]) 
-  {
-    return; 
-  }
-  // Сохраняем полученный байт в буфер RX для хранения данных
-  UARTBufferRX[UARTHeadRX[port]][port] = data;  
+  
   // Сохраняем новый номер "головы массива" RX
   UARTHeadRX[port] = h;
 }
