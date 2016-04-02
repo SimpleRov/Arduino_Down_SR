@@ -13,6 +13,8 @@
 
 #include "FastIO.h"
 
+#include "ADC.h"
+
 #include <util/delay.h>
 //*******************************  /Библиотеки  ******************************//
 
@@ -84,6 +86,9 @@ void setup()
   SetSSerial(&Serial);
 
   DEBUG_PRINTLN(F("Setup Begin"));
+
+  // Инициализация ADC.
+  AdcInit();
   
   // Немного подождем, вдруг, что-то не успело инициализировать.
   _delay_ms(1000);
