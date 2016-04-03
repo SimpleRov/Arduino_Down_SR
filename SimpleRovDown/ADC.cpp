@@ -43,11 +43,23 @@ void AdcInit()
   // REFS - Выбор опорного напряжения.
   // ADLAR - Выравнивание результата преобразования.
   // MUXn - Управление мультиплексором.
-  ADMUX |= (0 << REFS1) | (1 << REFS0) | (0 << ADLAR) | (0 << MUX4) | (0 << MUX3) | (1 << MUX2) | (1 << MUX1) | (1 << MUX0);
+  #if defined(ARDUINO_PRO_MINI)
+    ADMUX |= (0 << REFS1) | (1 << REFS0) | (0 << ADLAR) | (0 << MUX3) | (1 << MUX2) | (1 << MUX1) | (1 << MUX0);
+  #endif
+  
+  #if defined(ARDUINO_PRO_MICRO)
+    ADMUX |= (0 << REFS1) | (1 << REFS0) | (0 << ADLAR) | (0 << MUX4) | (0 << MUX3) | (1 << MUX2) | (1 << MUX1) | (1 << MUX0);
+  #endif
+  
+  #if defined(ARDUINO_MEGA_2560)
+    ADMUX |= (0 << REFS1) | (1 << REFS0) | (0 << ADLAR) | (0 << MUX4) | (0 << MUX3) | (0 << MUX2) | (0 << MUX1) | (0 << MUX0);
+  #endif
   
   // ADCSRB - Регистр управления АЦП B.
   // MUXn - Управление мультиплексором.
-  ADCSRB |= (0 << MUX5);
+  #if defined(ARDUINO_PRO_MICRO) || defined(ARDUINO_MEGA_2560)
+    ADCSRB |= (0 << MUX5);
+  #endif
   
   // DIDR0 - Регистр 0 отключения входов мультиплексора.
   // DIDR1 - Регистр 1 отключения входов мультиплексора.
