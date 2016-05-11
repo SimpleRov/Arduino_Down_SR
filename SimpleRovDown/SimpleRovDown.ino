@@ -17,24 +17,10 @@
 
 #include "TWI.h"
 
+#include "Timer.h"
+
 #include <util/delay.h>
 //*******************************  /Библиотеки  ******************************//
-
-#ifndef DEBUG_PRINT
-  #define DEBUG_PRINT(x) DebugSerial->print(x)
-#endif
-
-#ifndef DEBUG_PRINTF
-  #define DEBUG_PRINTF(x, y) DebugSerial->print(x, y)
-#endif
-
-#ifndef DEBUG_PRINTLN
-  #define DEBUG_PRINTLN(x) DebugSerial->println(x)
-#endif
-
-#ifndef DEBUG_PRINTLNF
-  #define DEBUG_PRINTLNF(x, y) DebugSerial->println(x, y)
-#endif
 
 //********************** Объявление переменных, констант *********************//
 // Переменная хранящая предыдущие значение первого массива кнопок джойстика.
@@ -42,6 +28,14 @@ static uint8_t previousBFirst = 0;
 
 // Переменная хранящая предыдущие значение второго массива кнопок джойстика.
 static uint8_t previousBSecond = 0; 
+
+// Время после смены опорного напряжения и получением 1 значения.
+uint32_t adcChangeRefT = 2000;
+
+// Переменные для определения максимального времени цикла.
+uint32_t timeCycleBegin = 0;
+uint32_t timeCycle = 0;
+uint32_t timeCycleMax = 0;
 //********************** /Объявление переменных, констант ********************//
 
 //****************************** Основные функции ****************************//
@@ -100,6 +94,9 @@ void setup()
 /// </summary>
 void loop() 
 {
+  // Начальное время цикла.
+  timeCycleBegin = micros();
+  
   CheckUart();
 
   // Пришли данные с джойстика.
@@ -118,6 +115,76 @@ void loop()
   {
     RovSendAnswer();
     ps2S.statuswork = 3;
+  }
+
+  // Тест ADC.
+  static uint8_t stepAdcSelect = 2;
+  if (!stepAdcSelect)
+  {
+    SetAdcPin(0);
+    if (AdcReadyToRead())
+    {
+      uint16_t adcValue = GetAdcValue();
+      DEBUG_PRINT("Value A0 - ");    
+      DEBUG_PRINTLN(adcValue);
+
+      stepAdcSelect = 1;
+    }
+  }
+  
+  if (stepAdcSelect == 1)
+  {
+    SetAdcPin(1);
+    if (AdcReadyToRead())
+    {
+      uint16_t adcValue = GetAdcValue();
+      DEBUG_PRINT("Value A1 - ");    
+      DEBUG_PRINTLN(adcValue);
+
+      stepAdcSelect = 2;
+    }
+  }
+
+  // Время установки нового опорного напряжения.
+  static uint32_t adcChangeRefPreviousT = 0; 
+  if (stepAdcSelect == 2)
+  {
+    SetAdcPin(AVR_ADC_TEMPERATURE_SENSOR);
+    if (AdcReadyToRead())
+    {
+      uint16_t adcValue = GetAdcValue();
+      DEBUG_PRINT("Value T - ");    
+      DEBUG_PRINTLN((adcValue - 273));
+
+      // Сохраняем время установки нового опорного напряжения.
+      adcChangeRefPreviousT = micros();
+
+      stepAdcSelect = 2;
+    }
+  }
+
+  if (stepAdcSelect == 3 && GetDifferenceULong(adcChangeRefPreviousT, micros()) > adcChangeRefT)
+  {
+    SetAdcPin(AVR_ADC_TEMPERATURE_SENSOR);
+    if (AdcReadyToRead())
+    {
+      uint16_t adcValue = GetAdcValue();
+      DEBUG_PRINT("Value T - ");    
+      DEBUG_PRINTLN((adcValue - 273));
+  
+      stepAdcSelect = adcChangeRefPreviousT = 0;
+    }
+  }
+
+  // Определяем скорость работы.
+  timeCycle = GetDifferenceULong(timeCycleBegin, micros());
+  // Если текущее значение больше, последнего максимального, отображаем его.
+  if (timeCycle > timeCycleMax)
+  {
+    timeCycleMax = timeCycle;
+  
+    DEBUG_PRINT("Max - ");
+    DEBUG_PRINTLN(timeCycleMax);
   }
 }
 
