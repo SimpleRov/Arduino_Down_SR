@@ -17,6 +17,8 @@
 
 #include "TWI.h"
 
+#include "Sensors.h"
+
 #include "Timer.h"
 
 #include <util/delay.h>
@@ -24,18 +26,21 @@
 
 //********************** Объявление переменных, констант *********************//
 // Переменная хранящая предыдущие значение первого массива кнопок джойстика.
-static uint8_t previousBFirst = 0;      
+uint8_t previousBFirst = 0;      
 
 // Переменная хранящая предыдущие значение второго массива кнопок джойстика.
-static uint8_t previousBSecond = 0; 
+uint8_t previousBSecond = 0; 
 
 // Время после смены опорного напряжения и получением 1 значения.
 uint32_t adcChangeRefT = 2000;
 
+// Структура для хранения данных MS5803_30BA.
+Ms580330Ba ms580330Ba;
+
 // Переменные для определения максимального времени цикла.
 uint32_t timeCycleBegin = 0;
 uint32_t timeCycle = 0;
-uint32_t timeCycleMax = 0;
+uint32_t timeCycleMax = 0;    
 //********************** /Объявление переменных, констант ********************//
 
 //****************************** Основные функции ****************************//
@@ -70,23 +75,35 @@ void setup()
   // Инициализация UART.
   InitUart();
 
-  Serial.begin(115200);
-  while (!Serial) 
-  {
-    ; // wait for serial port to connect. Needed for Leonardo only
-  }
+  #ifdef DEBUGGING_THROUGH_UART
+    Serial.begin(115200);
+    while (!Serial) 
+    {
+      ; // wait for serial port to connect. Needed for Leonardo only
+    }
+  #endif   
 
-  SetSSerial(&Serial);
-
-  DEBUG_PRINTLN(F("Setup Begin"));
+  #ifdef DEBUGGING_THROUGH_UART
+    SetSSerial(&Serial);
+  
+    DEBUG_PRINTLN(F("Setup Begin"));
+  #endif 
 
   // Инициализация ADC.
   AdcInit();
+
+  // Инициализация Twi.
+  TwiMasterInit();
+
+  // Иницилизация MS5803-30BA.
+  Ms580330BaInit(1);
   
   // Немного подождем, вдруг, что-то не успело инициализировать.
   _delay_ms(1000);
 
-  DEBUG_PRINTLN(F("Setup End"));
+  #ifdef DEBUGGING_THROUGH_UART
+    DEBUG_PRINTLN(F("Setup End"));
+  #endif
 }
 
 /// <summary>
@@ -95,15 +112,17 @@ void setup()
 void loop() 
 {
   // Начальное время цикла.
-  timeCycleBegin = micros();
+  //timeCycleBegin = micros();
   
   CheckUart();
 
   // Пришли данные с джойстика.
   if (ps2S.statuswork == 1)
   { 
-    DEBUG_PRINTLN(F("Data Exist"));
-
+    #ifdef DEBUGGING_THROUGH_UART
+      DEBUG_PRINTLN(F("Data Exist"));
+    #endif
+    
     previousBFirst = ps2S.bfirst;
     previousBSecond = ps2S.bsecond;
         
@@ -118,7 +137,7 @@ void loop()
   }
 
   // Тест ADC.
-  static uint8_t stepAdcSelect = 2;
+  /*static uint8_t stepAdcSelect = 2;
   if (!stepAdcSelect)
   {
     SetAdcPin(0);
@@ -174,18 +193,40 @@ void loop()
   
       stepAdcSelect = adcChangeRefPreviousT = 0;
     }
+  }*/
+ 
+  // Тест MS580330BA.
+  /*if(ms580330Ba.valueGet == 4 ||
+    (ms580330Ba.valueGet == 0 && ms580330Ba.twimStep == 0)) 
+  {
+    Ms580330BaBegin(&ms580330Ba);
   }
 
+  Ms580330BaGetData(&ms580330Ba);
+
+  if (ms580330Ba.valueGet == 3)
+  {
+    DEBUG_PRINT("Pressure = ");
+    DEBUG_PRINT(ms580330Ba.pressureValue);
+    DEBUG_PRINTLN(" mbar");
+
+    DEBUG_PRINT("Temperature = ");
+    DEBUG_PRINT(ms580330Ba.temperatureValue);
+    DEBUG_PRINTLN("C");
+
+    ms580330Ba.valueGet = 4;
+  }*/
+
   // Определяем скорость работы.
-  timeCycle = GetDifferenceULong(timeCycleBegin, micros());
+  //timeCycle = GetDifferenceULong(timeCycleBegin, micros());
   // Если текущее значение больше, последнего максимального, отображаем его.
-  if (timeCycle > timeCycleMax)
+  /*if (timeCycle > timeCycleMax)
   {
     timeCycleMax = timeCycle;
   
     DEBUG_PRINT("Max - ");
     DEBUG_PRINTLN(timeCycleMax);
-  }
+  }*/
 }
 
 //************************** Функции ответа Rov по UART **********************//
