@@ -17,14 +17,8 @@ volatile uint16_t adcValue;
 // adcStep = 4, данные от ADC получены.
 volatile uint8_t adcStep;
 
-// Переменная для хранения последнего пина.
-uint8_t oldAdcPin;
-
-// Время когда пин был переключен.
-uint32_t adcChangePinPreviousT = 0;
-
 // Интервал между переключением пина и началом преобразования ADC.
-uint32_t adcChangePinT = 10;
+#define ADC_CHANGE_PIN_T   10UL
 
 // Макрос для регистра входа мультиплексора.
 #define ADC_ADMUX ((0<<REFS1) | (1<<REFS0) | (0<<ADLAR))
@@ -89,6 +83,12 @@ uint8_t AdcReadyToRead()
 /// </summary>
 void SetAdcPin(uint8_t adcInput)
 {
+  // Переменная для хранения последнего пина.
+  static uint8_t oldAdcPin;
+
+  // Время когда пин был переключен.
+  static uint32_t adcChangePinPreviousT = 0;
+  
   // ADC не запускался или обработка полученных значений завершена.
   if (adcStep == 0)
   {
@@ -169,7 +169,7 @@ void SetAdcPin(uint8_t adcInput)
   if (adcStep == 1)
   {    
     // Выжидаем время, после переключения пина.
-    if (adcChangePinPreviousT && GetDifferenceULong(adcChangePinPreviousT, micros()) > adcChangePinT)
+    if (adcChangePinPreviousT && GetDifferenceULong(adcChangePinPreviousT, micros()) > ADC_CHANGE_PIN_T)
     {
       // Установлен пин на чтение.
       adcStep = 2;

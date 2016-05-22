@@ -9,32 +9,136 @@
 
 #include "GlobalVar.h"
 
+#include "ADC.h"
+
 #include "TWI.h"
+
+#include "Timer.h"
 
 #include <util/delay.h>
 //*******************************  /Библиотеки  *****************************//
 
-//*******************************  MS580330BA  ******************************//
-// Начальный адрес MS5803_30BA.
-#define MS5803_30BA_ADDRESS    0x77
+//*******************************  Все датчики  *****************************//
+void InitSensors()
+{
+  // Инициализация ADC.
+  AdcInit();
 
-#define CMD_RESET 0x1E    // ADC reset command
-#define CMD_ADC_READ 0x00 // ADC read command
-#define CMD_ADC_CONV 0x40 // ADC conversion command
-#define CMD_ADC_D1 0x00   // ADC D1 conversion
-#define CMD_ADC_D2 0x10   // ADC D2 conversion
-#define CMD_ADC_256 0x00  // ADC OSR=256
-#define CMD_ADC_512 0x02  // ADC OSR=512
-#define CMD_ADC_1024 0x04 // ADC OSR=1024
-#define CMD_ADC_2048 0x06 // ADC OSR=2048
-#define CMD_ADC_4096 0x08 // ADC OSR=4096
-#define CMD_PROM_RD 0xA0  // Prom read command 
+  // Инициализация Twi.
+  TwiMasterInit();
+
+  // Иницилизация MS5803-30BA.
+  Ms580330BaInit(1);
+}
+//*******************************  /Все датчики *****************************//
+
+//***************************  Все датчики на ADC  **************************//
+// Время после смены опорного напряжения и получением 1 значения.
+#define ADC_CHANGE_REF_T  2000UL
+
+static uint8_t AnalogPinRead(uint8_t pin, uint16_t* adcValue)
+{
+  SetAdcPin(pin);
+
+  if (AdcReadyToRead())
+  {
+    *adcValue = GetAdcValue();
+    
+    return 1;
+  }
+  return 0;
+}
+
+void AdcSensorsSendDataInStruct()
+{
+  static uint8_t stepAdcSelect = 0;
+  static uint16_t analogPinValue = 0;
+  if (!stepAdcSelect)
+  {
+    if (AnalogPinRead(0, &analogPinValue))
+    {
+      DEBUG_PRINT(F("Value A0 - "));    
+      DEBUG_PRINTLN(analogPinValue);
+      
+      stepAdcSelect = 1;
+    }
+  }
+  
+  if (stepAdcSelect == 1)
+  {
+    if (AnalogPinRead(1, &analogPinValue))
+    {
+      DEBUG_PRINT(F("Value A1 - "));    
+      DEBUG_PRINTLN(analogPinValue);
+
+      stepAdcSelect = 2;
+    }
+  }
+
+  // Время установки нового опорного напряжения.
+  static uint32_t adcChangeRefPreviousT = 0; 
+  if (stepAdcSelect == 2)
+  {
+    if (AnalogPinRead(AVR_ADC_TEMPERATURE_SENSOR, &analogPinValue))
+    {
+      // Сохраняем время установки нового опорного напряжения.
+      adcChangeRefPreviousT = micros();
+
+      stepAdcSelect = 3;
+    }
+  }
+
+  if (stepAdcSelect == 3 && GetDifferenceULong(adcChangeRefPreviousT, micros()) > ADC_CHANGE_REF_T)
+  {
+    if (AnalogPinRead(AVR_ADC_TEMPERATURE_SENSOR, &analogPinValue))
+    {
+      DEBUG_PRINT(F("Value T - "));    
+      DEBUG_PRINTLN((analogPinValue - 273));
+  
+      stepAdcSelect = adcChangeRefPreviousT = 0;
+    }
+  }
+}
+//***************************  /Все датчики на ADC **************************//
+
+//***************************  Все датчики на TWI  **************************//
+
+//*******************************  MS580330BA  ******************************//
+// Начальный адрес MS580330BA.
+#define MS5803_30BA_ADDRESS     0x77
+
+// Команды MS580330BA.
+#define CMD_RESET               0x1E // ADC reset command
+#define CMD_ADC_READ            0x00 // ADC read command
+#define CMD_ADC_CONV            0x40 // ADC conversion command
+#define CMD_ADC_D1              0x00 // ADC D1 conversion
+#define CMD_ADC_D2              0x10 // ADC D2 conversion
+#define CMD_ADC_256             0x00 // ADC OSR=256
+#define CMD_ADC_512             0x02 // ADC OSR=512
+#define CMD_ADC_1024            0x04 // ADC OSR=1024
+#define CMD_ADC_2048            0x06 // ADC OSR=2048
+#define CMD_ADC_4096            0x08 // ADC OSR=4096
+#define CMD_PROM_RD             0xA0 // Prom read command 
+
+// Значение pow.
+#define POW_2_6                 64.00
+#define POW_2_7                 128.00
+#define POW_2_8                 256.00
+
+#define POW_2_15                32768.00
+#define POW_2_16                65536.00
+#define POW_2_17                131072.00
+
+#define POW_2_21                2097152.00
+#define POW_2_23                8388608.00
 
 uint16_t calibrationCoefficients[8]; // calibration coefficients
-uint8_t crcValue;                    // crc value of the prom
 
 static uint32_t intervalConvert = 1000;
-static uint32_t beginConvert = 0; 
+//static uint32_t beginConvert = 0; 
+
+// Структура для хранения данных MS5803_30BA.
+Ms580330Ba ms580330Ba;
 
 void Ms580330BaInit(uint8_t check) 
 { 
@@ -42,14 +146,14 @@ void Ms580330BaInit(uint8_t check)
   TwiSetToLengthAddressReg(0);
 
   // Устанавливаем скорость передачи.
-  TwiChangeSpeed(100000UL);
+  TwiChangeSpeed(TWI_SPEED);
   
   Ms580330BaReset();
   for (uint8_t i=0; i<8; i++)
   {
     calibrationCoefficients[i] = Ms580330BaReadCalibrationCoefficients(i);
   }
-  crcValue=Ms580330BaCalculateCrc(calibrationCoefficients); // calculate the CRC
+  Ms580330BaCalculateCrc(calibrationCoefficients); // calculate the CRC
 }
 
 static void Ms580330BaReset()
@@ -119,6 +223,8 @@ static uint8_t Ms580330BaCalculateCrc(uint16_t* n_prom)
 
 static void Ms580330BaGetRawData(uint8_t cmd, Ms580330Ba* sensor)
 {
+  static uint32_t beginConvert = 0;
+  
   if (sensor->twimStep == 1)
   {
     Ms580330BaSendCommand(CMD_ADC_CONV+cmd, 0);
@@ -212,14 +318,40 @@ void Ms580330BaGetData(Ms580330Ba* sensor)
   
   if (sensor->twimStep && sensor->valueGet == 2)
   {
-    double dT=sensor->temperatureRaw-calibrationCoefficients[5]*pow(2,8);
-    double OFF=calibrationCoefficients[2]*pow(2,17)+dT*calibrationCoefficients[4]/pow(2,6);
-    double SENS=calibrationCoefficients[1]*pow(2,16)+dT*calibrationCoefficients[3]/pow(2,7);
+    double dt =sensor->temperatureRaw-(calibrationCoefficients[5]*POW_2_8);
+    double off=(calibrationCoefficients[2]*POW_2_17)+dt*(calibrationCoefficients[4]/POW_2_6);
+    double sens =(calibrationCoefficients[1]*POW_2_16)+dt*(calibrationCoefficients[3]/POW_2_7);
     
-    sensor->temperatureValue = (2000+(dT*calibrationCoefficients[6])/pow(2,23))/100;
-    sensor->pressureValue = (((sensor->pressureRaw*SENS)/pow(2,21)-OFF)/pow(2,15))/100;
-    
+    sensor->temperatureValue = (2000+(dt*calibrationCoefficients[6])/POW_2_23)/100;
+    sensor->pressureValue = (((sensor->pressureRaw*sens)/POW_2_21-off)/POW_2_15)/100;
+
     sensor->valueGet = 3;
   }
 }
+
+void Ms580330BaSendDataInStruct()
+{
+  if(ms580330Ba.valueGet == 4 ||
+    (ms580330Ba.valueGet == 0 && ms580330Ba.twimStep == 0)) 
+  {
+    Ms580330BaBegin(&ms580330Ba);
+  }
+
+  Ms580330BaGetData(&ms580330Ba);
+
+  if (ms580330Ba.valueGet == 3)
+  {
+    DEBUG_PRINT("Pressure = ");
+    DEBUG_PRINT(ms580330Ba.pressureValue);
+    DEBUG_PRINTLN(" mbar");
+
+    DEBUG_PRINT("Temperature = ");
+    DEBUG_PRINT(ms580330Ba.temperatureValue);
+    DEBUG_PRINTLN("C");
+
+    ms580330Ba.valueGet = 4;
+  }
+}
 //******************************  /MS580330BA  ******************************//
+
+//***************************  /Все датчики на TWI **************************//
