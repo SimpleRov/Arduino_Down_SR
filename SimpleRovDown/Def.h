@@ -27,6 +27,16 @@
 #endif
 //***********************  /Определяем тип ардуины  *************************//
 
+//*********************  Макросы для атомарных операций  ********************//
+#ifndef MC_CRITICAL_SECTION_START
+  #define MC_CRITICAL_SECTION_START  cli();      
+#endif
+
+#ifndef MC_CRITICAL_SECTION_END     
+  #define MC_CRITICAL_SECTION_END    sei();
+#endif
+//*********************  /Макросы для атомарных операций  *******************//
+
 //******************  Soft Serial в ATmega32U4 (Promicro)  ******************//
 // Настройки пинов для виртуального UART.
 #if defined(ARDUINO_PRO_MICRO)
@@ -59,14 +69,18 @@
 #endif
 //*******************************  /TWI (I2C)  ******************************//
 
-//*********************  Макросы для атомарных операций  ********************//
-#ifndef MC_CRITICAL_SECTION_START
-  #define MC_CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();      
-#endif
+//****************************  Объявление пинов  ***************************//
+#define BTN_1_PIN            13  
 
-#ifndef MC_CRITICAL_SECTION_END     
-  #define MC_CRITICAL_SECTION_END    SREG = _sreg;
-#endif
-//*********************  /Макросы для атомарных операций  *******************//
+#define BTN_2_PIN            13
+
+#define BTN_3_PIN            13  
+
+#define BTN_4_PIN            13  
+
+#define BTN_5_PIN            13
+
+#define BTN_6_PIN            13
+//****************************  /Объявление пинов  **************************//
 
 #endif /* DEF_H_ */

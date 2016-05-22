@@ -16,6 +16,8 @@ Global variables use 538 bytes (21%) of dynamic memory, leaving 2 022 bytes for
 
 #include "GlobalVar.h"
 
+#include "BitsMacros.h"
+
 #include "FastIO.h"
 
 //#include "ADC.h"
@@ -41,6 +43,21 @@ uint32_t timeCycleBegin = 0;
 uint32_t timeCycle = 0;
 uint32_t timeCycleMax = 0;    
 //********************** /Объявление переменных, констант ********************//
+
+//******************** Функции работы с кнопками PS2 Joystick ****************//
+#define PS2_JOYSTICK_BTN_PRESS(IO, REG, BIT_NUMBER) if (MC_BIT_IS_SET(REG, BIT_NUMBER))\
+                                                    {\
+                                                      MC_WRITE_PIN(IO, !MC_READ_PIN(IO));\
+                                                    }
+#define PS2_JOYSTICK_BTN_HOLD(IO, REG, PREV, BIT_NUMBER) if (MC_BIT_IS_SET(REG, BIT_NUMBER))\
+                                                    {\
+                                                      MC_WRITE_PIN(IO, HIGH);\
+                                                    }\
+                                                    else if (MC_BIT_IS_SET(PREV, BIT_NUMBER)) \
+                                                    {\
+                                                      MC_WRITE_PIN(IO, LOW);\
+                                                    }
+//******************** /Функции работы с кнопками PS2 Joystick ***************//
 
 //****************************** Основные функции ****************************//
 /// <summary>
@@ -88,6 +105,9 @@ void setup()
   // Инициализация UART.
   InitUart();
 
+  // Инициализация пинов.
+  InitPin();
+
   // Инициализация датчиков.
   InitSensors();
   
@@ -112,6 +132,24 @@ void loop()
   // Пришли данные с джойстика.
   if (ps2S.statuswork == 1)
   { 
+    // Кнопка 1 с фиксацией, нажата кнопка "треугольник", 1 массив.  
+    PS2_JOYSTICK_BTN_PRESS(BTN_1_PIN, ps2S.bfirst, 4);
+          
+    // Кнопка 2 с фиксацией, нажата кнопка "круг", 1 массив.
+    PS2_JOYSTICK_BTN_PRESS(BTN_2_PIN, ps2S.bfirst, 5);
+          
+    // Кнопка 3 с фиксацией, нажата кнопка "крест", 1 массив.
+    PS2_JOYSTICK_BTN_PRESS(BTN_3_PIN, ps2S.bfirst, 6);
+          
+    // Кнопка 4 с фиксацией, нажата кнопка "квадрат", 1 массив.
+    PS2_JOYSTICK_BTN_PRESS(BTN_4_PIN, ps2S.bfirst, 7);
+          
+    // Кнопка 5 без фиксации, нажата кнопка вправо, 1 массив.   
+    PS2_JOYSTICK_BTN_HOLD(BTN_5_PIN, ps2S.bfirst, previousBFirst, 1);  
+          
+    // Кнопка 6 без фиксации, нажата кнопка влево, 1 массив.
+    PS2_JOYSTICK_BTN_HOLD(BTN_6_PIN, ps2S.bfirst, previousBFirst, 2);   
+    
     #ifdef DEBUGGING_THROUGH_UART
       DEBUG_PRINTLN(F("Data Exist"));
     #endif
@@ -158,3 +196,21 @@ void RovSendAnswer(void)
   SendStruct((uint8_t*)&rovDataS, 1, 2);
 }
 //************************** /Функции ответа Rov по UART *********************//
+
+//************************* Функции инициализации портов *********************//
+// Инициализация пинов.
+void InitPin()
+{
+  MC_SET_PIN_OUTPUT(BTN_1_PIN);
+    
+  MC_SET_PIN_OUTPUT(BTN_2_PIN);
+  
+  MC_SET_PIN_OUTPUT(BTN_3_PIN);
+
+  MC_SET_PIN_OUTPUT(BTN_4_PIN);
+  
+  MC_SET_PIN_OUTPUT(BTN_5_PIN);
+
+  MC_SET_PIN_OUTPUT(BTN_6_PIN);
+}
+//************************* /Функции инициализации портов ********************//

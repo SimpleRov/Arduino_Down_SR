@@ -22,11 +22,11 @@
 #endif
 
 #ifndef MC_CRITICAL_SECTION_START
-  #define MC_CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();         
+  #define MC_CRITICAL_SECTION_START  cli();         
 #endif
 
 #ifndef MC_CRITICAL_SECTION_END
-  #define MC_CRITICAL_SECTION_END    SREG = _sreg;
+  #define MC_CRITICAL_SECTION_END    sei();
 #endif
 
 #define MC_READ_PIN_(IO) ((bool)(DIO ## IO ## _RPORT & MC_MASK_PIN(DIO ## IO ## _PIN)))
