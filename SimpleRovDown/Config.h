@@ -43,6 +43,9 @@
 
 //************************ Настройки Debug UART *****************************//
 #ifdef DEBUGGING_THROUGH_UART
+  // Порт UART.
+  #define UART_DEBUG_PORT         0    
+  
   // Скорость порта UART.
   #define UART_DEBUG_SPEED        115200UL    
 #endif        
