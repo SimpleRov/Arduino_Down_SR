@@ -8,16 +8,7 @@
   #ifndef F_CPU
     #define F_CPU 16000000UL   
   #endif                             
-
-  // Определяем тип ардуины.
-  #if defined(__AVR_ATmega328P__)
-    // Если ArduinoProMini.
-    #define ARDUINO_PRO_MINI
-  #endif
-  #if defined(__AVR_ATmega32U4__)
-    // Если ArduinoProMicro.
-    #define ARDUINO_PRO_MICRO
-  #endif
+  
   #if defined(__AVR_ATmega2560__)
     // Если ArduinoMega.
     #define ARDUINO_MEGA_2560
@@ -38,7 +29,6 @@
 //*********************  /Макросы для атомарных операций  *******************//
 
 //******************  Soft Serial в ATmega32U4 (Promicro)  ******************//
-// Настройки пинов для виртуального UART.
 #if defined(ARDUINO_PRO_MICRO)
   #define USB_CDC_TX        3
   #define USB_CDC_RX        2
