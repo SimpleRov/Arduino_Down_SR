@@ -144,9 +144,9 @@ void SetAdcPin(uint8_t adcInput)
       #if defined(ARDUINO_MEGA_2560)
         if (adcInput > 7)
         {
-          ADCSRB = (1<< MUX5);
-          adcInput = adcInput - 8;
+          ADCSRB = (1<< MUX5); 
         }
+        ADMUX  =  adcInput | ADC_ADMUX;
       #endif
       
       // Сохраняем время установки нового порта.
