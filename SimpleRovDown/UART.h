@@ -13,7 +13,7 @@
 // Определяем кол-во UART-тов в зависимости от платы
 #if defined(ARDUINO_MEGA_2560)
   // Если ArduinoMega
-  #define UARTNumber 4
+  #define UARTNumber 2
 #elif defined(ARDUINO_PRO_MICRO)
   // Если ArduinoProMicro
   #define UARTNumber 1

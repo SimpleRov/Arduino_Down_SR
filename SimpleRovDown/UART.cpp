@@ -172,6 +172,7 @@ void UARTOpen(uint8_t port, uint32_t baud)
       case 0: UCSR0A  = (1<<U2X0); UBRR0H = h; UBRR0L = l; UCSR0B |= (1<<RXEN0)|(1<<TXEN0)|(1<<RXCIE0); break;
     #endif
     #if defined(ARDUINO_PRO_MICRO)
+      case 0: UDIEN &= ~(1<<SOFE); break;
       case 1: UCSR1A  = (1<<U2X1); UBRR1H = h; UBRR1L = l; UCSR1B |= (1<<RXEN1)|(1<<TXEN1)|(1<<RXCIE1); break;
     #endif
     #if defined(ARDUINO_MEGA_2560)
@@ -197,6 +198,16 @@ void UARTSendData(uint8_t port)
     //TODO: Заменить switch на if.
     switch (port) 
     {
+      case 0:
+        while(UARTHeadTX[0] != UARTTailTX[0]) 
+        {
+           if (++UARTTailTX[0] >= TXBufferSize) 
+           {
+             UARTTailTX[0] = 0;
+           }
+           USB_Send(USB_CDC_TX,UARTBufferTX[UARTTailTX[0]],1);
+        }
+        break;
       case 1: UCSR1B |= (1<<UDRIE1); break;
     }
   #endif
@@ -217,9 +228,6 @@ void UARTSendData(uint8_t port)
 /// <param name="port">Номер порта</param>
 uint8_t UARTUsedTXBuff(uint8_t port) 
 {
-  #if defined(ARDUINO_PRO_MICRO)
-    port = 0;
-  #endif
   return ((uint8_t)(UARTHeadTX[port] - UARTTailTX[port]))%TXBufferSize;
 }
 
@@ -230,9 +238,6 @@ uint8_t UARTUsedTXBuff(uint8_t port)
 /// <param name="a">Отправляемый байт</param>
 void UARTSerialize(uint8_t port,uint8_t a) 
 {
-  #if defined(ARDUINO_PRO_MICRO)
-    port = 0;
-  #endif
   uint8_t t = UARTHeadTX[port];
   if (++t >= TXBufferSize) 
   {
@@ -249,9 +254,6 @@ void UARTSerialize(uint8_t port,uint8_t a)
 /// <param name="c">Отправляемый байт</param>
 void UARTWrite(uint8_t port,uint8_t c)
 {
-  #if defined(ARDUINO_PRO_MICRO)
-    port = 0;
-  #endif
   UARTSerialize(port,c);
   UARTSendData(port);
 }
@@ -262,10 +264,6 @@ void UARTWrite(uint8_t port,uint8_t c)
 /// <param name="portnum">Номер порта</param>
 static inline void StoreUARTInBuf(uint8_t data, uint8_t port) 
 {
-  #if defined(ARDUINO_PRO_MICRO)
-    port = 0;
-  #endif
-  
   // Получаем номер "головы массива" RX
   uint8_t h = UARTHeadRX[port];
   
@@ -288,8 +286,8 @@ static inline void StoreUARTInBuf(uint8_t data, uint8_t port)
 /// <param name="port">Номер порта</param>
 uint8_t UARTAvailable(uint8_t port) 
 {
-  #if defined(ARDUINO_PRO_MICRO)
-    port = 0;
+  #if defined(PROMICRO)
+    if(port == 0) return T_USB_Available();
   #endif
   return ((uint8_t)(UARTHeadRX[port] - UARTTailRX[port]))%RXBufferSize;
 }
@@ -301,7 +299,11 @@ uint8_t UARTAvailable(uint8_t port)
 uint8_t UARTRead(uint8_t port) 
 {
   #if defined(ARDUINO_PRO_MICRO)
-    port = 0;
+    if(port == 0) 
+    {
+      USB_Flush(USB_CDC_TX);
+      return USB_Recv(USB_CDC_RX);  
+    } 
   #endif
   // Получаем номер "хвоста масива" RX
   uint8_t t = UARTTailRX[port];
@@ -348,4 +350,3 @@ void UARTClose(uint8_t port)
     #endif
   }
 }
-
