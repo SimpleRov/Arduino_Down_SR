@@ -6,6 +6,10 @@ Global variables use 538 bytes (21%) of dynamic memory, leaving 2 022 bytes for
 //*******************************  Библиотеки  *******************************//
 #include "Arduino.h"
 
+//#include "UART.h"
+
+#include "UARTDebug.h"
+
 #include "Protocol.h"
 
 #include "Config.h"
@@ -20,13 +24,11 @@ Global variables use 538 bytes (21%) of dynamic memory, leaving 2 022 bytes for
 
 #include "FastIO.h"
 
-//#include "ADC.h"
-
-//#include "TWI.h"
-
 #include "Timer.h"
 
 #include "Sensors.h"
+
+#include <Servo.h>
 
 #include <util/delay.h>
 //*******************************  /Библиотеки  ******************************//
@@ -88,22 +90,12 @@ int main(void)
 /// </summary>
 void setup()
 {  
-  #ifdef DEBUGGING_THROUGH_UART
-    Serial.begin(115200);
-    while (!Serial) 
-    {
-      ; // wait for serial port to connect. Needed for Leonardo only
-    }
-  #endif   
-
-  #ifdef DEBUGGING_THROUGH_UART
-    SetSSerial(&Serial);
-  
-    DEBUG_PRINTLN(F("Setup Begin"));
-  #endif 
-
   // Инициализация UART.
   InitUart();
+
+  #ifdef DEBUGGING_THROUGH_UART
+    DEBUG_PRINTLN(F("Setup Start"));
+  #endif
 
   // Инициализация пинов.
   InitPin();
@@ -172,7 +164,7 @@ void loop()
   
   // Тест MS580330BA.
   Ms580330BaSendDataInStruct();
-
+  
   #ifdef DEBUG_SPEED_CYCLE
     // Определяем скорость работы.
     timeCycle = GetDifferenceULong(timeCycleBegin, micros());

@@ -3,11 +3,11 @@
 
 #include "Sensors.h"
 
+#include "UARTDebug.h"
+
 #include "Config.h"
 
 #include "Def.h"
-
-#include "GlobalVar.h"
 
 #include "ADC.h"
 
@@ -71,31 +71,7 @@ void AdcSensorsSendDataInStruct()
       DEBUG_PRINT(F("Value A1 - "));    
       DEBUG_PRINTLN(analogPinValue);
 
-      stepAdcSelect = 2;
-    }
-  }
-
-  // Время установки нового опорного напряжения.
-  static uint32_t adcChangeRefPreviousT = 0; 
-  if (stepAdcSelect == 2)
-  {
-    if (AnalogPinRead(AVR_ADC_TEMPERATURE_SENSOR, &analogPinValue))
-    {
-      // Сохраняем время установки нового опорного напряжения.
-      adcChangeRefPreviousT = micros();
-
-      stepAdcSelect = 3;
-    }
-  }
-
-  if (stepAdcSelect == 3 && GetDifferenceULong(adcChangeRefPreviousT, micros()) > ADC_CHANGE_REF_T)
-  {
-    if (AnalogPinRead(AVR_ADC_TEMPERATURE_SENSOR, &analogPinValue))
-    {
-      DEBUG_PRINT(F("Value T - "));    
-      DEBUG_PRINTLN((analogPinValue - 273));
-  
-      stepAdcSelect = adcChangeRefPreviousT = 0;
+      stepAdcSelect = 0;
     }
   }
 }

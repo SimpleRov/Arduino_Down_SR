@@ -41,8 +41,13 @@ static uint8_t Cmd[UARTNumber];
 
 void InitUart(void)
 {  
-  // Инициализируем и открываем UART порт связи с Rov
+  // Инициализируем и открываем UART порт связи с Rov.
   UARTOpen(UART_PORT, UART_PORT_SPEED);
+
+  #ifdef DEBUGGING_THROUGH_UART
+    // Инициализируем и открываем UART порт для отладки.
+    UARTOpen(UART_DEBUG_PORT, UART_DEBUG_SPEED);
+  #endif 
 }
 
 static void Serialize8(uint8_t a) 

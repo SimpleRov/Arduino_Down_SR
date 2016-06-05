@@ -3,7 +3,7 @@
 
 //********************************  Отладка  *********************************//
 // Отладка
-#define TWI_DEBUG
+//#define TWI_DEBUG
 
 #ifdef TWI_DEBUG
   // Отладка в стиле I2CDEV
@@ -18,24 +18,6 @@
   
   #ifdef TWI_DEBUG_LIKE_I2CDEV
     #undef TWI_DEBUG_STEP_BY_STEP
-  #endif
-  
-  #define TWI_DEBUG_USE_SERIAL
-  
-  #ifndef DEBUG_PRINT
-    #define DEBUG_PRINT(x) DebugSerial->print(x)
-  #endif
-  
-  #ifndef DEBUG_PRINTF
-    #define DEBUG_PRINTF(x, y) DebugSerial->print(x, y)
-  #endif
-  
-  #ifndef DEBUG_PRINTLN
-    #define DEBUG_PRINTLN(x) DebugSerial->println(x)
-  #endif
-  
-  #ifndef DEBUG_PRINTLNF
-    #define DEBUG_PRINTLNF(x, y) DebugSerial->println(x, y)
   #endif
 #endif
 //********************************  /Отладка  ********************************//
