@@ -78,23 +78,6 @@ static uint8_t UARTBufferTX[TXBufferSize][UARTNumber];
         UCSR1B &= ~(1<<UDRIE1);
       }
     #endif
-
-    #if defined(ARDUINO_PRO_MICRO)
-      uint8_t t = UARTTailTX[0];
-      if (UARTHeadTX[0] != t) 
-      {
-        if (++t >= TXBufferSize) 
-        {
-          t = 0;
-        }
-        UDR1 = UARTBufferTX[t][0];  
-        UARTTailTX[0] = t;
-      }
-      if (t == UARTHeadTX[0])
-      {
-        UCSR1B &= ~(1<<UDRIE1);
-      }
-    #endif
   }
 #endif
 #if defined(ARDUINO_MEGA_2560)

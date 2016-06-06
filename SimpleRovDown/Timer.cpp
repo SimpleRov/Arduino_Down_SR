@@ -16,6 +16,25 @@
 
 //********* Функции работы с таймерами на основе millis(), micros() *********//
 /// <summary>
+/// Проверка таймера на основе millis
+/// </summary>
+uint8_t CheckTimerMillis(uint32_t PreviousTimmer, uint32_t Time)
+{
+  // Если предыдущие значение, больше 0
+  if (PreviousTimmer)
+  {
+    // Получаем время с момента запуска программы и отнимем значение PreviousTimmer (время с начала запуска таймера). После это проверяем, прошло ли установленное время Time  
+    if (GetDifferenceULong(PreviousTimmer, millis()) >= Time)
+    {
+      // Возвращаем true
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
+/// <summary>
 /// Получение разницы между 2 uint32_t
 /// </summary>
 uint32_t GetDifferenceULong(uint32_t BeginTime, uint32_t EndTime)

@@ -6,8 +6,6 @@ Global variables use 538 bytes (21%) of dynamic memory, leaving 2 022 bytes for
 //*******************************  Библиотеки  *******************************//
 #include "Arduino.h"
 
-//#include "UART.h"
-
 #include "UARTDebug.h"
 
 #include "Protocol.h"
@@ -35,15 +33,26 @@ Global variables use 538 bytes (21%) of dynamic memory, leaving 2 022 bytes for
 
 //********************** Объявление переменных, констант *********************//
 // Переменная хранящая предыдущие значение первого массива кнопок джойстика.
-uint8_t previousBFirst = 0;      
+static uint8_t previousBFirst = 0;      
 
 // Переменная хранящая предыдущие значение второго массива кнопок джойстика.
-uint8_t previousBSecond = 0; 
+static uint8_t previousBSecond = 0; 
 
 // Переменные для определения максимального времени цикла.
 uint32_t timeCycleBegin = 0;
 uint32_t timeCycle = 0;
 uint32_t timeCycleMax = 0;    
+
+// Камера.
+Servo CameraTiltServo;
+
+// Угол поворота сервы камеры.
+uint8_t cameraTiltServoAngle = CAMERA_TILT_SERVO_BEGIN_ANGLE;
+
+// Переменная для хранения предыдущего значения millis(), используется для движения камеры вверх.
+uint32_t cameraTiltUpPreviousT = 0;
+// Переменная для хранения предыдущего значения millis(), используется для движения камеры вниз.
+uint32_t cameraTiltDownPreviousT = 0;
 //********************** /Объявление переменных, констант ********************//
 
 //******************** Функции работы с кнопками PS2 Joystick ****************//
@@ -100,6 +109,9 @@ void setup()
   // Инициализация пинов.
   InitPin();
 
+  // Инициализация ESC, Servo и моторов.
+  InitEscServoMotor();
+
   // Инициализация датчиков.
   InitSensors();
   
@@ -142,9 +154,15 @@ void loop()
     // Кнопка 6 без фиксации, нажата кнопка влево, 1 массив.
     PS2_JOYSTICK_BTN_HOLD(BTN_6_PIN, ps2S.bfirst, previousBFirst, 2);   
     
-    #ifdef DEBUGGING_THROUGH_UART
+    // Поднимаем камеру устанавливаем значение таймера.
+    CameraTiltSetTimmer(ps2S.bfirst, 0, &cameraTiltUpPreviousT);
+        
+    // Опускаем камеру устанавливаем значение таймера.
+    CameraTiltSetTimmer(ps2S.bfirst, 3, &cameraTiltDownPreviousT);
+      
+    /*#ifdef DEBUGGING_THROUGH_UART
       DEBUG_PRINTLN(F("Data Exist"));
-    #endif
+    #endif*/
     
     previousBFirst = ps2S.bfirst;
     previousBSecond = ps2S.bsecond;
@@ -159,11 +177,39 @@ void loop()
     ps2S.statuswork = 3;
   }
 
+  // Работаем с камерой.
+  if ((MC_BIT_IS_SET(previousBFirst, 0)) || (MC_BIT_IS_SET(previousBFirst, 3)))
+  {
+    // Поднимаем камеру.
+    if (MC_BIT_IS_SET(previousBFirst, 0) && CheckTimerMillis(cameraTiltUpPreviousT, CAMERA_TILT_SERVO_ANGLE_CHANGE_DELAY))
+    {
+      cameraTiltUpPreviousT = millis();
+          
+      if (cameraTiltServoAngle < 180)
+      {
+        cameraTiltServoAngle++;  
+        CameraTiltServo.write(cameraTiltServoAngle); 
+      }
+    }
+      
+    // Опускаем камеру.
+    if (MC_BIT_IS_SET(previousBFirst, 3) && CheckTimerMillis(cameraTiltDownPreviousT, CAMERA_TILT_SERVO_ANGLE_CHANGE_DELAY))
+    {   
+      cameraTiltDownPreviousT = millis();
+
+      if (cameraTiltServoAngle)
+      {
+        cameraTiltServoAngle--;
+        CameraTiltServo.write(cameraTiltServoAngle);
+      }
+    }
+  }
+
   // Тест ADC.
-  AdcSensorsSendDataInStruct();
+  //AdcSensorsSendDataInStruct();
   
   // Тест MS580330BA.
-  Ms580330BaSendDataInStruct();
+  //Ms580330BaSendDataInStruct();
   
   #ifdef DEBUG_SPEED_CYCLE
     // Определяем скорость работы.
@@ -206,3 +252,34 @@ void InitPin()
   MC_SET_PIN_OUTPUT(BTN_6_PIN);
 }
 //************************* /Функции инициализации портов ********************//
+
+//****************************** Функции Servo и ESC  ************************//
+/// <summary>
+// Инициализация ESC, Servo и моторов.
+/// </summary>
+void InitEscServoMotor(void)
+{
+  // Инициализируем камеру.
+  // Устанавливаем сервопривод камеры в среднее положение.
+  ServoEscAttachAndInitInitialPosition(&CameraTiltServo, CAMERA_TILT_SERVO_PIN, CAMERA_TILT_SERVO_BEGIN_ANGLE);
+}
+//****************************** /Функции Servo и ESC  ***********************//
+
+//************************* Функции работы с Servo и ESC *********************//
+void ServoEscAttachAndInitInitialPosition(Servo* servo, uint8_t servoPin, uint16_t initialPosition)
+{
+  servo->attach(servoPin);
+  servo->write(initialPosition);
+}
+
+//**************************** Функции работы с камерой ***********************//
+void CameraTiltSetTimmer(uint8_t reg, uint8_t bitNumber, uint32_t* previousT)
+{
+  if (MC_BIT_IS_SET(reg, bitNumber))
+  { 
+    *previousT = millis();
+  }
+}
+//**************************** /Функции работы с камерой **********************//
+
+//************************* /Функции работы с Servo и ESC *********************//

@@ -26,6 +26,8 @@
 #include "GlobalVar.h"
 
 #include "UART.h"
+
+#include "UARTDebug.h"
 //*******************************  /Библиотеки  *****************************//
 static uint8_t CurrentUARTPortSend = UART_PORT;
 static uint8_t CurrentUARTPortRead = 0;
@@ -44,7 +46,7 @@ void InitUart(void)
   // Инициализируем и открываем UART порт связи с Rov.
   UARTOpen(UART_PORT, UART_PORT_SPEED);
 
-  #ifdef DEBUGGING_THROUGH_UART
+  #if defined DEBUGGING_THROUGH_UART && defined(ARDUINO_MEGA_2560)
     // Инициализируем и открываем UART порт для отладки.
     UARTOpen(UART_DEBUG_PORT, UART_DEBUG_SPEED);
   #endif 
@@ -159,11 +161,7 @@ void CheckUart(void)
   
   for(n=0; n < UARTNumber; n++) 
   {
-    #if defined(ARDUINO_PRO_MICRO)
-      CurrentUARTPortRead = 0;
-    #else
-      CurrentUARTPortRead = n;
-    #endif
+    CurrentUARTPortRead = n;
     
     uint8_t cc = UARTAvailable(CurrentUARTPortRead);
     while (cc--) 
