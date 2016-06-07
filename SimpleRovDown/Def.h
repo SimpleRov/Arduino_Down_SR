@@ -73,7 +73,20 @@
 #define BTN_6_PIN            13
 
 // Серва управление наклоном камеры.
-#define CAMERA_TILT_SERVO_PIN                      9  
+#define CAMERA_TILT_SERVO_PIN                      9    
+
+// Тяговый мотор правый.
+#define ESC_MOTOR_RIGHT_PIN                       24
+
+// Тяговый мотор левый.
+#define ESC_MOTOR_LEFT_PIN                        25          
+
+// Мотор подъема\спуска задний. 
+#define ESC_MOTOR_UP_PIN                          23
+
+// Мотор подъема\спуска передний.
+#define ESC_MOTOR_LAG_PIN                         22
+
 //****************************  /Объявление пинов  **************************//
 
 #endif /* DEF_H_ */

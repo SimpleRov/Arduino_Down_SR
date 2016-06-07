@@ -51,13 +51,80 @@
 #endif        
 //************************ /Настройки Debug UART ****************************//
 
+//*********************** Настройки PS2 Joystick ****************************//
+// Значение нейтрального положения стика на джойстике.
+#define PS2_JOYSTICK_DEF_VALUE 123
+//*********************** /Настройки PS2 Joystick ***************************//
+
 //******************** Настройки сервопривода камеры ************************//
 // Начальный угол наклона камеры.
 #define CAMERA_TILT_SERVO_BEGIN_ANGLE                   90
 // Промежуток времени в мс, после которого происходит изменение положения камеры. 
 // При удержании кнопки камера - вверх или вниз.
-#define CAMERA_TILT_SERVO_ANGLE_CHANGE_DELAY            10
+#define CAMERA_TILT_SERVO_ANGLE_CHANGE_DELAY            30
 //******************** /Настройки сервопривода камеры ***********************//
+
+//**************************** Настройки ESC ********************************//
+// Тяговый мотор правый, значение сигнала вперед, макс.
+#define ESC_MOTOR_RIGHT_SIGNAL_FORWARD_MAX        750
+
+// Тяговый мотор правый, значение сигнала вперед, мин.
+#define ESC_MOTOR_RIGHT_SIGNAL_FORWARD_MIN        1500
+
+// Тяговый мотор правый, значение сигнала стоп.
+#define ESC_MOTOR_RIGHT_SIGNAL_STOP               1525
+
+// Тяговый мотор правый, значение сигнала назад, макс.
+#define ESC_MOTOR_RIGHT_SIGNAL_REVERSE_MAX        2250
+
+// Тяговый мотор правый, значение сигнала назад, мин.
+#define ESC_MOTOR_RIGHT_SIGNAL_REVERSE_MIN        1550
+
+// Тяговый мотор левый, значение сигнала вперед, макс.
+#define ESC_MOTOR_LEFT_SIGNAL_FORWARD_MAX         750
+
+// Тяговый мотор левый, значение сигнала вперед, мин.
+#define ESC_MOTOR_LEFT_SIGNAL_FORWARD_MIN         1500
+
+// Тяговый мотор левый, значение сигнала стоп.
+#define ESC_MOTOR_LEFT_SIGNAL_STOP                1525
+
+// Тяговый мотор левый, значение сигнала назад, макс.
+#define ESC_MOTOR_LEFT_SIGNAL_REVERSE_MAX         2250
+
+// Тяговый мотор левый, значение сигнала назад, мин.
+#define ESC_MOTOR_LEFT_SIGNAL_REVERSE_MIN         1550
+
+// Мотор подъема\спуска, значение сигнала вперед, макс.
+#define ESC_MOTOR_UP_SIGNAL_FORWARD_MAX           750
+
+// Мотор подъема\спуска, значение сигнала вперед, мин.
+#define ESC_MOTOR_UP_SIGNAL_FORWARD_MIN           1500
+
+// Мотор подъема\спуска, значение сигнала стоп.
+#define ESC_MOTOR_UP_SIGNAL_STOP                  1525
+
+// Мотор подъема\спуска, значение сигнала назад, макс.
+#define ESC_MOTOR_UP_SIGNAL_REVERSE_MAX           2250
+
+// Мотор подъема\спуска, значение сигнала назад, мин.
+#define ESC_MOTOR_UP_SIGNAL_REVERSE_MIN           1550
+
+// Мотор подъема\спуска, значение сигнала вперед, макс.
+#define ESC_MOTOR_LAG_SIGNAL_FORWARD_MAX          750
+
+// Мотор подъема\спуска, значение сигнала вперед, мин.
+#define ESC_MOTOR_LAG_SIGNAL_FORWARD_MIN          1500
+
+// Мотор подъема\спуска, значение сигнала стоп.
+#define ESC_MOTOR_LAG_SIGNAL_STOP                 1525
+
+// Мотор подъема\спуска, значение сигнала назад, макс.
+#define ESC_MOTOR_LAG_SIGNAL_REVERSE_MAX          2250
+
+// Мотор подъема\спуска, значение сигнала назад, мин.
+#define ESC_MOTOR_LAG_SIGNAL_REVERSE_MIN          1550
+//**************************** /Настройки ESC *******************************//
 
 #endif /* CONFIG_H_ */
 

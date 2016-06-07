@@ -38,13 +38,34 @@ static uint8_t previousBFirst = 0;
 // Переменная хранящая предыдущие значение второго массива кнопок джойстика.
 static uint8_t previousBSecond = 0; 
 
+// Состояние обработки команды стика джойстика, стик LY. 
+static uint8_t joystickLYWorkStatus = 0;
+
+// Состояние обработки команды стика джойстика, стик RY. 
+static uint8_t joystickRYWorkStatus = 0;
+
+// Состояние обработки команды стика джойстика, стик RX.
+static uint8_t joystickRXWorkStatus = 0;
+
 // Переменные для определения максимального времени цикла.
 uint32_t timeCycleBegin = 0;
 uint32_t timeCycle = 0;
 uint32_t timeCycleMax = 0;    
 
 // Камера.
-Servo CameraTiltServo;
+Servo CameraTiltServo;  
+  
+// Тяговый мотор правый. 
+Servo ESCMotorRight;   
+
+// Тяговый мотор левый. 
+Servo ESCMotorLeft; 
+
+// Мотор подъема\спуска. 
+Servo ESCMotorUp;  
+
+// Мотор подъема\спуска. 
+Servo ESCMotorLag;  
 
 // Угол поворота сервы камеры.
 uint8_t cameraTiltServoAngle = CAMERA_TILT_SERVO_BEGIN_ANGLE;
@@ -159,7 +180,89 @@ void loop()
         
     // Опускаем камеру устанавливаем значение таймера.
     CameraTiltSetTimmer(ps2S.bfirst, 3, &cameraTiltDownPreviousT);
-      
+
+    // Работаем со стиками. 
+    // Далее идут стики левый и правый. Информация с левого стика должна выполняться только тогда, когда нажата кнопка 9, а с правого - когда. 
+    // нажата кнопка 12.
+    // Стик 13 (вверх - это всплытие, вниз - погружение).
+    // Чем сильнее отклоняется стик вверх - тем быстрее крутятся 2 мотора в одну сторону, чем сильнее отклоняется вниз - тем быстрее вращение в обратную сторону.
+    if (MC_BIT_IS_SET(ps2S.bsecond, 0) && ps2S.ly != PS2_JOYSTICK_DEF_VALUE)
+    {          
+      if (ps2S.ly > PS2_JOYSTICK_DEF_VALUE)
+      {
+        ESCMotorUp.writeMicroseconds(map(ps2S.ly, PS2_JOYSTICK_DEF_VALUE-1, 0, ESC_MOTOR_UP_SIGNAL_REVERSE_MIN, ESC_MOTOR_UP_SIGNAL_REVERSE_MAX));
+      }
+      else
+      {
+        ESCMotorUp.writeMicroseconds(map(ps2S.ly, PS2_JOYSTICK_DEF_VALUE+1, 255, ESC_MOTOR_UP_SIGNAL_FORWARD_MIN, ESC_MOTOR_UP_SIGNAL_FORWARD_MAX));
+      }
+         
+      joystickLYWorkStatus = 1; 
+    }
+    else 
+    {
+      if (joystickLYWorkStatus == 1)
+      {
+        joystickLYWorkStatus++;
+      }
+    }
+        
+    // Далее идут стики левый и правый. 
+    // Информация с левого стика должна выполняться только тогда, когда нажата кнопка 9, а с правого - когда нажата кнопка 12.
+    // Стик 14 (движение в горизонтали).
+    // вверх - движение вперед.
+    // вниз - движение назад.
+    if (MC_BIT_IS_SET(ps2S.bsecond, 1) && ps2S.ry != PS2_JOYSTICK_DEF_VALUE && ps2S.rx == PS2_JOYSTICK_DEF_VALUE)
+    {          
+      if (ps2S.ry > PS2_JOYSTICK_DEF_VALUE)
+      {
+        ESCMotorRight.writeMicroseconds(map(ps2S.ry, PS2_JOYSTICK_DEF_VALUE-1, 0, ESC_MOTOR_RIGHT_SIGNAL_REVERSE_MIN, ESC_MOTOR_RIGHT_SIGNAL_REVERSE_MAX));
+        ESCMotorLeft.writeMicroseconds(map(ps2S.ry, PS2_JOYSTICK_DEF_VALUE-1, 0, ESC_MOTOR_LEFT_SIGNAL_REVERSE_MIN, ESC_MOTOR_LEFT_SIGNAL_REVERSE_MAX));
+      }
+      else
+      {
+        ESCMotorRight.writeMicroseconds(map(ps2S.ry, PS2_JOYSTICK_DEF_VALUE+1, 255, ESC_MOTOR_RIGHT_SIGNAL_FORWARD_MIN, ESC_MOTOR_RIGHT_SIGNAL_FORWARD_MAX));
+        ESCMotorLeft.writeMicroseconds(map(ps2S.ry, PS2_JOYSTICK_DEF_VALUE+1, 255, ESC_MOTOR_LEFT_SIGNAL_FORWARD_MIN, ESC_MOTOR_LEFT_SIGNAL_FORWARD_MAX));
+      }
+        
+      joystickRYWorkStatus = 1;
+    }
+    else 
+    {
+      if (joystickRYWorkStatus == 1)
+      {
+        joystickRYWorkStatus++;
+      }
+    }
+        
+    // Далее идут стики левый и правый. 
+    // Информация с левого стика должна выполняться только тогда, когда нажата кнопка 9, а с правого - когда нажата кнопка 12.
+    // Стик 14 (движение в горизонтали).
+    // влево - вращение на месте налево.
+    // вправо - движение на месте направо.
+    if (MC_BIT_IS_SET(ps2S.bsecond, 1) && ps2S.rx != PS2_JOYSTICK_DEF_VALUE && ps2S.ry == PS2_JOYSTICK_DEF_VALUE)
+    {
+      if (ps2S.rx < PS2_JOYSTICK_DEF_VALUE)
+      {
+        ESCMotorLeft.writeMicroseconds(map(ps2S.rx, 0, PS2_JOYSTICK_DEF_VALUE-1, ESC_MOTOR_LEFT_SIGNAL_REVERSE_MIN, ESC_MOTOR_LEFT_SIGNAL_REVERSE_MAX));
+        ESCMotorRight.writeMicroseconds(map(ps2S.rx, 0, PS2_JOYSTICK_DEF_VALUE-1, ESC_MOTOR_RIGHT_SIGNAL_FORWARD_MIN, ESC_MOTOR_RIGHT_SIGNAL_FORWARD_MAX));
+      }
+      else
+      {     
+        ESCMotorLeft.writeMicroseconds(map(ps2S.rx, PS2_JOYSTICK_DEF_VALUE+1, 255, ESC_MOTOR_LEFT_SIGNAL_FORWARD_MIN, ESC_MOTOR_LEFT_SIGNAL_FORWARD_MAX));
+        ESCMotorRight.writeMicroseconds(map(ps2S.rx, PS2_JOYSTICK_DEF_VALUE+1, 255, ESC_MOTOR_RIGHT_SIGNAL_REVERSE_MIN, ESC_MOTOR_RIGHT_SIGNAL_REVERSE_MAX));
+      }
+          
+      joystickRXWorkStatus = 1;
+    }
+    else 
+    {
+      if (joystickRXWorkStatus == 1)
+      {
+        joystickRXWorkStatus++;
+      }
+    }
+    
     #ifdef DEBUGGING_THROUGH_UART
       DEBUG_PRINTLN(F("Data Exist"));
     #endif
@@ -203,6 +306,49 @@ void loop()
         CameraTiltServo.write(cameraTiltServoAngle);
       }
     }
+  }
+
+  // Работаем со стиками. 
+  // Далее идут стики левый и правый.
+  // Информация с левого стика должна выполняться только тогда, когда нажата кнопка 9, а с правого - когда нажата кнопка 12.
+  // Стик 13 (вверх - это всплытие, вниз - погружение).
+  // Чем сильнее отклоняется стик вверх - тем быстрее крутятся 2 мотора в одну сторону, чем сильнее отклоняется вниз - тем быстрее вращение в обратную сторону.
+  //TODO: Вынести в отдельную функцию
+  if (joystickLYWorkStatus == 2)
+  {      
+    ESCMotorUp.writeMicroseconds(ESC_MOTOR_UP_SIGNAL_STOP);
+    ESCMotorUp.writeMicroseconds(ESC_MOTOR_UP_SIGNAL_STOP);
+        
+    joystickLYWorkStatus = 0;
+  }
+    
+  // Далее идут стики левый и правый. 
+  // Информация с левого стика должна выполняться только тогда, когда нажата кнопка 9, а с правого - когда нажата кнопка 12.
+  // Стик 14 (движение в горизонтали).
+  // вверх - движение вперед.
+  // вниз - движение назад.
+
+  //TODO: Вынести в отдельную функцию
+  if (joystickRYWorkStatus == 2)
+  {      
+    ESCMotorRight.writeMicroseconds(ESC_MOTOR_RIGHT_SIGNAL_STOP);
+    ESCMotorLeft.writeMicroseconds(ESC_MOTOR_LEFT_SIGNAL_STOP);
+        
+    joystickRYWorkStatus = 0;
+  }
+    
+  // Далее идут стики левый и правый. 
+  // Информация с левого стика должна выполняться только тогда, когда нажата кнопка 9, а с правого - когда нажата кнопка 12.
+  // Стик 14 (движение в горизонтали).
+  // влево - вращение на месте налево.
+  // вправо - движение на месте направо.
+  //TODO: Вынести в отдельную функцию
+  if (joystickRXWorkStatus == 2)
+  {      
+    ESCMotorRight.writeMicroseconds(ESC_MOTOR_RIGHT_SIGNAL_STOP);
+    ESCMotorLeft.writeMicroseconds(ESC_MOTOR_LEFT_SIGNAL_STOP);
+        
+    joystickRXWorkStatus = 0;
   }
 
   // Тест ADC.
@@ -262,6 +408,19 @@ void InitEscServoMotor(void)
   // Инициализируем камеру.
   // Устанавливаем сервопривод камеры в среднее положение.
   ServoEscAttachAndInitInitialPosition(&CameraTiltServo, CAMERA_TILT_SERVO_PIN, CAMERA_TILT_SERVO_BEGIN_ANGLE);
+
+  // Инициализируем тяговый мотор правый.
+  ServoEscAttachAndInitInitialPosition(&ESCMotorRight, ESC_MOTOR_RIGHT_PIN, ESC_MOTOR_RIGHT_SIGNAL_STOP);
+
+  // Инициализируем тяговый мотор левый.
+  ServoEscAttachAndInitInitialPosition(&ESCMotorLeft, ESC_MOTOR_LEFT_PIN, ESC_MOTOR_LEFT_SIGNAL_STOP);
+
+  // Инициализируем мотор подъема\спуска.
+  ServoEscAttachAndInitInitialPosition(&ESCMotorUp, ESC_MOTOR_UP_PIN, ESC_MOTOR_UP_SIGNAL_STOP);
+
+  // Инициализируем лаговый мотор.
+  ServoEscAttachAndInitInitialPosition(&ESCMotorLag, ESC_MOTOR_LAG_PIN, ESC_MOTOR_LAG_SIGNAL_STOP);
+
 }
 //****************************** /Функции Servo и ESC  ***********************//
 
