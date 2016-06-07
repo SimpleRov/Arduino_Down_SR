@@ -10,11 +10,11 @@
 //*******************************  Библиотеки  ******************************//
 #include <Arduino.h>
 
-#include "UART.h"
-
 #include "Config.h"
 
 #include "Def.h"
+
+#include "UART.h"
 //*******************************  /Библиотеки  *****************************//
 
 // UARTHeadRX - буфер RX для хранения "головы массива"
@@ -62,22 +62,20 @@ static uint8_t UARTBufferTX[TXBufferSize][UARTNumber];
 #if defined(ARDUINO_MEGA_2560) || defined(ARDUINO_PRO_MICRO)
   ISR(USART1_UDRE_vect) 
   { 
-    #if defined(ARDUINO_MEGA_2560)
-      uint8_t t = UARTTailTX[1];
-      if (UARTHeadTX[1] != t) 
+    uint8_t t = UARTTailTX[1];
+    if (UARTHeadTX[1] != t) 
+    {
+      if (++t >= TXBufferSize) 
       {
-        if (++t >= TXBufferSize) 
-        {
-          t = 0;
-        }
-        UDR1 = UARTBufferTX[t][1];  
-        UARTTailTX[1] = t;
+        t = 0;
       }
-      if (t == UARTHeadTX[1])
-      {
-        UCSR1B &= ~(1<<UDRIE1);
-      }
-    #endif
+      UDR1 = UARTBufferTX[t][1];  
+      UARTTailTX[1] = t;
+    }
+    if (t == UARTHeadTX[1])
+    {
+      UCSR1B &= ~(1<<UDRIE1);
+    }
   }
 #endif
 #if defined(ARDUINO_MEGA_2560)
@@ -270,7 +268,7 @@ static inline void StoreUARTInBuf(uint8_t data, uint8_t port)
 uint8_t UARTAvailable(uint8_t port) 
 {
   #if defined(PROMICRO)
-    if(port == 0) return T_USB_Available();
+    if(port == 0) return USB_Available(USB_CDC_RX);
   #endif
   return ((uint8_t)(UARTHeadRX[port] - UARTTailRX[port]))%RXBufferSize;
 }

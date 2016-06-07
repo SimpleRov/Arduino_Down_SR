@@ -32,7 +32,7 @@
 
 //******************************** Тесты ************************************//
 // Отладка через UART.
-//#define DEBUGGING_THROUGH_UART
+#define DEBUGGING_THROUGH_UART
 
 // Отладка через LED.
 //#define LED_DEBUG

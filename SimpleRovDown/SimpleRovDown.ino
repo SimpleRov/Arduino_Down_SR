@@ -160,9 +160,9 @@ void loop()
     // Опускаем камеру устанавливаем значение таймера.
     CameraTiltSetTimmer(ps2S.bfirst, 3, &cameraTiltDownPreviousT);
       
-    /*#ifdef DEBUGGING_THROUGH_UART
+    #ifdef DEBUGGING_THROUGH_UART
       DEBUG_PRINTLN(F("Data Exist"));
-    #endif*/
+    #endif
     
     previousBFirst = ps2S.bfirst;
     previousBSecond = ps2S.bsecond;
