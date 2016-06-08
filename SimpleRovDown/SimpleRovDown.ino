@@ -26,7 +26,7 @@ Global variables use 538 bytes (21%) of dynamic memory, leaving 2 022 bytes for
 
 #include "Sensors.h"
 
-#include <Servo.h>
+//#include <Servo.h>
 
 #include <util/delay.h>
 //*******************************  /Библиотеки  ******************************//
@@ -52,6 +52,7 @@ uint32_t timeCycleBegin = 0;
 uint32_t timeCycle = 0;
 uint32_t timeCycleMax = 0;    
 
+/*
 // Камера.
 Servo CameraTiltServo;  
   
@@ -66,6 +67,7 @@ Servo ESCMotorUp;
 
 // Мотор подъема\спуска. 
 Servo ESCMotorLag;  
+*/
 
 // Угол поворота сервы камеры.
 uint8_t cameraTiltServoAngle = CAMERA_TILT_SERVO_BEGIN_ANGLE;
@@ -174,7 +176,8 @@ void loop()
           
     // Кнопка 6 без фиксации, нажата кнопка влево, 1 массив.
     PS2_JOYSTICK_BTN_HOLD(BTN_6_PIN, ps2S.bfirst, previousBFirst, 2);   
-    
+
+    /*
     // Поднимаем камеру устанавливаем значение таймера.
     CameraTiltSetTimmer(ps2S.bfirst, 0, &cameraTiltUpPreviousT);
         
@@ -262,6 +265,7 @@ void loop()
         joystickRXWorkStatus++;
       }
     }
+    */
     
     #ifdef DEBUGGING_THROUGH_UART
       DEBUG_PRINTLN(F("Data Exist"));
@@ -280,6 +284,7 @@ void loop()
     ps2S.statuswork = 3;
   }
 
+  /*
   // Работаем с камерой.
   if ((MC_BIT_IS_SET(previousBFirst, 0)) || (MC_BIT_IS_SET(previousBFirst, 3)))
   {
@@ -350,7 +355,8 @@ void loop()
         
     joystickRXWorkStatus = 0;
   }
-
+  */
+  
   // Тест ADC.
   //AdcSensorsSendDataInStruct();
   
@@ -405,6 +411,11 @@ void InitPin()
 /// </summary>
 void InitEscServoMotor(void)
 {
+  SetupTimer1ForServo();
+  SetupTimer3ForESC();
+  SetupTimer4ForESC();
+
+  /*
   // Инициализируем камеру.
   // Устанавливаем сервопривод камеры в среднее положение.
   ServoEscAttachAndInitInitialPosition(&CameraTiltServo, CAMERA_TILT_SERVO_PIN, CAMERA_TILT_SERVO_BEGIN_ANGLE);
@@ -420,16 +431,17 @@ void InitEscServoMotor(void)
 
   // Инициализируем лаговый мотор.
   ServoEscAttachAndInitInitialPosition(&ESCMotorLag, ESC_MOTOR_LAG_PIN, ESC_MOTOR_LAG_SIGNAL_STOP);
-
+  */
 }
 //****************************** /Функции Servo и ESC  ***********************//
 
 //************************* Функции работы с Servo и ESC *********************//
-void ServoEscAttachAndInitInitialPosition(Servo* servo, uint8_t servoPin, uint16_t initialPosition)
+/*void ServoEscAttachAndInitInitialPosition(Servo* servo, uint8_t servoPin, uint16_t initialPosition)
 {
   servo->attach(servoPin);
   servo->write(initialPosition);
 }
+*/
 
 //**************************** Функции работы с камерой ***********************//
 void CameraTiltSetTimmer(uint8_t reg, uint8_t bitNumber, uint32_t* previousT)
