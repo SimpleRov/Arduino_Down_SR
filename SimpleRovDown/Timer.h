@@ -15,12 +15,4 @@ uint32_t GetDifferenceULong(uint32_t BeginTime, uint32_t EndTime);
 
 //********* /Функции работы с таймерами на основе millis(), micros() ********//
 
-//**************** Функции работы с таймерами для Servo и ESC ***************//
-void SetupTimer1ForServo();
-
-void SetupTimer3ForESC();
-
-void SetupTimer4ForESC();
-//*************** /Функции работы с таймерами для Servo и ESC ***************//
-
 #endif /* TIMER_H_ */

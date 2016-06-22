@@ -1,6 +1,6 @@
 /*
-Sketch uses 11 430 bytes (39%) of program storage space. Maximum is 28 672 bytes.
-Global variables use 538 bytes (21%) of dynamic memory, leaving 2 022 bytes for local variables. Maximum is 2 560 bytes.
+Sketch uses 6 104 bytes (2%) of program storage space. Maximum is 253 952 bytes.
+Global variables use 513 bytes (6%) of dynamic memory, leaving 7 679 bytes for local variables. Maximum is 8 192 bytes.
 */
 
 //*******************************  Библиотеки  *******************************//
@@ -25,6 +25,8 @@ Global variables use 538 bytes (21%) of dynamic memory, leaving 2 022 bytes for
 #include "Timer.h"
 
 #include "Sensors.h"
+
+#include "Motor.h"
 
 //#include <Servo.h>
 
@@ -177,7 +179,6 @@ void loop()
     // Кнопка 6 без фиксации, нажата кнопка влево, 1 массив.
     PS2_JOYSTICK_BTN_HOLD(BTN_6_PIN, ps2S.bfirst, previousBFirst, 2);   
 
-    /*
     // Поднимаем камеру устанавливаем значение таймера.
     CameraTiltSetTimmer(ps2S.bfirst, 0, &cameraTiltUpPreviousT);
         
@@ -193,11 +194,11 @@ void loop()
     {          
       if (ps2S.ly > PS2_JOYSTICK_DEF_VALUE)
       {
-        ESCMotorUp.writeMicroseconds(map(ps2S.ly, PS2_JOYSTICK_DEF_VALUE-1, 0, ESC_MOTOR_UP_SIGNAL_REVERSE_MIN, ESC_MOTOR_UP_SIGNAL_REVERSE_MAX));
+        //ESCMotorUp.writeMicroseconds(map(ps2S.ly, PS2_JOYSTICK_DEF_VALUE-1, 0, ESC_MOTOR_UP_SIGNAL_REVERSE_MIN, ESC_MOTOR_UP_SIGNAL_REVERSE_MAX));
       }
       else
       {
-        ESCMotorUp.writeMicroseconds(map(ps2S.ly, PS2_JOYSTICK_DEF_VALUE+1, 255, ESC_MOTOR_UP_SIGNAL_FORWARD_MIN, ESC_MOTOR_UP_SIGNAL_FORWARD_MAX));
+        //ESCMotorUp.writeMicroseconds(map(ps2S.ly, PS2_JOYSTICK_DEF_VALUE+1, 255, ESC_MOTOR_UP_SIGNAL_FORWARD_MIN, ESC_MOTOR_UP_SIGNAL_FORWARD_MAX));
       }
          
       joystickLYWorkStatus = 1; 
@@ -219,13 +220,13 @@ void loop()
     {          
       if (ps2S.ry > PS2_JOYSTICK_DEF_VALUE)
       {
-        ESCMotorRight.writeMicroseconds(map(ps2S.ry, PS2_JOYSTICK_DEF_VALUE-1, 0, ESC_MOTOR_RIGHT_SIGNAL_REVERSE_MIN, ESC_MOTOR_RIGHT_SIGNAL_REVERSE_MAX));
-        ESCMotorLeft.writeMicroseconds(map(ps2S.ry, PS2_JOYSTICK_DEF_VALUE-1, 0, ESC_MOTOR_LEFT_SIGNAL_REVERSE_MIN, ESC_MOTOR_LEFT_SIGNAL_REVERSE_MAX));
+        //ESCMotorRight.writeMicroseconds(map(ps2S.ry, PS2_JOYSTICK_DEF_VALUE-1, 0, ESC_MOTOR_RIGHT_SIGNAL_REVERSE_MIN, ESC_MOTOR_RIGHT_SIGNAL_REVERSE_MAX));
+        //ESCMotorLeft.writeMicroseconds(map(ps2S.ry, PS2_JOYSTICK_DEF_VALUE-1, 0, ESC_MOTOR_LEFT_SIGNAL_REVERSE_MIN, ESC_MOTOR_LEFT_SIGNAL_REVERSE_MAX));
       }
       else
       {
-        ESCMotorRight.writeMicroseconds(map(ps2S.ry, PS2_JOYSTICK_DEF_VALUE+1, 255, ESC_MOTOR_RIGHT_SIGNAL_FORWARD_MIN, ESC_MOTOR_RIGHT_SIGNAL_FORWARD_MAX));
-        ESCMotorLeft.writeMicroseconds(map(ps2S.ry, PS2_JOYSTICK_DEF_VALUE+1, 255, ESC_MOTOR_LEFT_SIGNAL_FORWARD_MIN, ESC_MOTOR_LEFT_SIGNAL_FORWARD_MAX));
+        //ESCMotorRight.writeMicroseconds(map(ps2S.ry, PS2_JOYSTICK_DEF_VALUE+1, 255, ESC_MOTOR_RIGHT_SIGNAL_FORWARD_MIN, ESC_MOTOR_RIGHT_SIGNAL_FORWARD_MAX));
+        //ESCMotorLeft.writeMicroseconds(map(ps2S.ry, PS2_JOYSTICK_DEF_VALUE+1, 255, ESC_MOTOR_LEFT_SIGNAL_FORWARD_MIN, ESC_MOTOR_LEFT_SIGNAL_FORWARD_MAX));
       }
         
       joystickRYWorkStatus = 1;
@@ -247,13 +248,13 @@ void loop()
     {
       if (ps2S.rx < PS2_JOYSTICK_DEF_VALUE)
       {
-        ESCMotorLeft.writeMicroseconds(map(ps2S.rx, 0, PS2_JOYSTICK_DEF_VALUE-1, ESC_MOTOR_LEFT_SIGNAL_REVERSE_MIN, ESC_MOTOR_LEFT_SIGNAL_REVERSE_MAX));
-        ESCMotorRight.writeMicroseconds(map(ps2S.rx, 0, PS2_JOYSTICK_DEF_VALUE-1, ESC_MOTOR_RIGHT_SIGNAL_FORWARD_MIN, ESC_MOTOR_RIGHT_SIGNAL_FORWARD_MAX));
+        //ESCMotorLeft.writeMicroseconds(map(ps2S.rx, 0, PS2_JOYSTICK_DEF_VALUE-1, ESC_MOTOR_LEFT_SIGNAL_REVERSE_MIN, ESC_MOTOR_LEFT_SIGNAL_REVERSE_MAX));
+        //ESCMotorRight.writeMicroseconds(map(ps2S.rx, 0, PS2_JOYSTICK_DEF_VALUE-1, ESC_MOTOR_RIGHT_SIGNAL_FORWARD_MIN, ESC_MOTOR_RIGHT_SIGNAL_FORWARD_MAX));
       }
       else
       {     
-        ESCMotorLeft.writeMicroseconds(map(ps2S.rx, PS2_JOYSTICK_DEF_VALUE+1, 255, ESC_MOTOR_LEFT_SIGNAL_FORWARD_MIN, ESC_MOTOR_LEFT_SIGNAL_FORWARD_MAX));
-        ESCMotorRight.writeMicroseconds(map(ps2S.rx, PS2_JOYSTICK_DEF_VALUE+1, 255, ESC_MOTOR_RIGHT_SIGNAL_REVERSE_MIN, ESC_MOTOR_RIGHT_SIGNAL_REVERSE_MAX));
+        //ESCMotorLeft.writeMicroseconds(map(ps2S.rx, PS2_JOYSTICK_DEF_VALUE+1, 255, ESC_MOTOR_LEFT_SIGNAL_FORWARD_MIN, ESC_MOTOR_LEFT_SIGNAL_FORWARD_MAX));
+        //ESCMotorRight.writeMicroseconds(map(ps2S.rx, PS2_JOYSTICK_DEF_VALUE+1, 255, ESC_MOTOR_RIGHT_SIGNAL_REVERSE_MIN, ESC_MOTOR_RIGHT_SIGNAL_REVERSE_MAX));
       }
           
       joystickRXWorkStatus = 1;
@@ -265,7 +266,6 @@ void loop()
         joystickRXWorkStatus++;
       }
     }
-    */
     
     #ifdef DEBUGGING_THROUGH_UART
       DEBUG_PRINTLN(F("Data Exist"));
@@ -284,7 +284,6 @@ void loop()
     ps2S.statuswork = 3;
   }
 
-  /*
   // Работаем с камерой.
   if ((MC_BIT_IS_SET(previousBFirst, 0)) || (MC_BIT_IS_SET(previousBFirst, 3)))
   {
@@ -296,7 +295,7 @@ void loop()
       if (cameraTiltServoAngle < 180)
       {
         cameraTiltServoAngle++;  
-        CameraTiltServo.write(cameraTiltServoAngle); 
+        //CameraTiltServo.write(cameraTiltServoAngle); 
       }
     }
       
@@ -308,7 +307,7 @@ void loop()
       if (cameraTiltServoAngle)
       {
         cameraTiltServoAngle--;
-        CameraTiltServo.write(cameraTiltServoAngle);
+        //CameraTiltServo.write(cameraTiltServoAngle);
       }
     }
   }
@@ -321,8 +320,8 @@ void loop()
   //TODO: Вынести в отдельную функцию
   if (joystickLYWorkStatus == 2)
   {      
-    ESCMotorUp.writeMicroseconds(ESC_MOTOR_UP_SIGNAL_STOP);
-    ESCMotorUp.writeMicroseconds(ESC_MOTOR_UP_SIGNAL_STOP);
+    //ESCMotorUp.writeMicroseconds(ESC_MOTOR_UP_SIGNAL_STOP);
+    //ESCMotorUp.writeMicroseconds(ESC_MOTOR_UP_SIGNAL_STOP);
         
     joystickLYWorkStatus = 0;
   }
@@ -336,8 +335,8 @@ void loop()
   //TODO: Вынести в отдельную функцию
   if (joystickRYWorkStatus == 2)
   {      
-    ESCMotorRight.writeMicroseconds(ESC_MOTOR_RIGHT_SIGNAL_STOP);
-    ESCMotorLeft.writeMicroseconds(ESC_MOTOR_LEFT_SIGNAL_STOP);
+    //ESCMotorRight.writeMicroseconds(ESC_MOTOR_RIGHT_SIGNAL_STOP);
+    //ESCMotorLeft.writeMicroseconds(ESC_MOTOR_LEFT_SIGNAL_STOP);
         
     joystickRYWorkStatus = 0;
   }
@@ -350,12 +349,11 @@ void loop()
   //TODO: Вынести в отдельную функцию
   if (joystickRXWorkStatus == 2)
   {      
-    ESCMotorRight.writeMicroseconds(ESC_MOTOR_RIGHT_SIGNAL_STOP);
-    ESCMotorLeft.writeMicroseconds(ESC_MOTOR_LEFT_SIGNAL_STOP);
+    //ESCMotorRight.writeMicroseconds(ESC_MOTOR_RIGHT_SIGNAL_STOP);
+    //ESCMotorLeft.writeMicroseconds(ESC_MOTOR_LEFT_SIGNAL_STOP);
         
     joystickRXWorkStatus = 0;
   }
-  */
   
   // Тест ADC.
   //AdcSensorsSendDataInStruct();
@@ -407,32 +405,32 @@ void InitPin()
 
 //****************************** Функции Servo и ESC  ************************//
 /// <summary>
-// Инициализация ESC, Servo и моторов.
-/// </summary>
-void InitEscServoMotor(void)
-{
-  SetupTimer1ForServo();
-  SetupTimer3ForESC();
-  SetupTimer4ForESC();
-
-  /*
-  // Инициализируем камеру.
-  // Устанавливаем сервопривод камеры в среднее положение.
-  ServoEscAttachAndInitInitialPosition(&CameraTiltServo, CAMERA_TILT_SERVO_PIN, CAMERA_TILT_SERVO_BEGIN_ANGLE);
-
-  // Инициализируем тяговый мотор правый.
-  ServoEscAttachAndInitInitialPosition(&ESCMotorRight, ESC_MOTOR_RIGHT_PIN, ESC_MOTOR_RIGHT_SIGNAL_STOP);
-
-  // Инициализируем тяговый мотор левый.
-  ServoEscAttachAndInitInitialPosition(&ESCMotorLeft, ESC_MOTOR_LEFT_PIN, ESC_MOTOR_LEFT_SIGNAL_STOP);
-
-  // Инициализируем мотор подъема\спуска.
-  ServoEscAttachAndInitInitialPosition(&ESCMotorUp, ESC_MOTOR_UP_PIN, ESC_MOTOR_UP_SIGNAL_STOP);
-
-  // Инициализируем лаговый мотор.
-  ServoEscAttachAndInitInitialPosition(&ESCMotorLag, ESC_MOTOR_LAG_PIN, ESC_MOTOR_LAG_SIGNAL_STOP);
-  */
-}
+//// Инициализация ESC, Servo и моторов.
+///// </summary>
+//void InitEscServoMotor(void)
+//{
+//  SetupTimer1ForServo();
+//  SetupTimer3ForESC();
+//  SetupTimer4ForESC();
+//
+//  /*
+//  // Инициализируем камеру.
+//  // Устанавливаем сервопривод камеры в среднее положение.
+//  ServoEscAttachAndInitInitialPosition(&CameraTiltServo, CAMERA_TILT_SERVO_PIN, CAMERA_TILT_SERVO_BEGIN_ANGLE);
+//
+//  // Инициализируем тяговый мотор правый.
+//  ServoEscAttachAndInitInitialPosition(&ESCMotorRight, ESC_MOTOR_RIGHT_PIN, ESC_MOTOR_RIGHT_SIGNAL_STOP);
+//
+//  // Инициализируем тяговый мотор левый.
+//  ServoEscAttachAndInitInitialPosition(&ESCMotorLeft, ESC_MOTOR_LEFT_PIN, ESC_MOTOR_LEFT_SIGNAL_STOP);
+//
+//  // Инициализируем мотор подъема\спуска.
+//  ServoEscAttachAndInitInitialPosition(&ESCMotorUp, ESC_MOTOR_UP_PIN, ESC_MOTOR_UP_SIGNAL_STOP);
+//
+//  // Инициализируем лаговый мотор.
+//  ServoEscAttachAndInitInitialPosition(&ESCMotorLag, ESC_MOTOR_LAG_PIN, ESC_MOTOR_LAG_SIGNAL_STOP);
+//  */
+//}
 //****************************** /Функции Servo и ESC  ***********************//
 
 //************************* Функции работы с Servo и ESC *********************//
@@ -440,8 +438,7 @@ void InitEscServoMotor(void)
 {
   servo->attach(servoPin);
   servo->write(initialPosition);
-}
-*/
+}*/
 
 //**************************** Функции работы с камерой ***********************//
 void CameraTiltSetTimmer(uint8_t reg, uint8_t bitNumber, uint32_t* previousT)

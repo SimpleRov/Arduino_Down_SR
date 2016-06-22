@@ -7,8 +7,8 @@
      * License GNU GPL v3
 ******************************************************************************/
 
-#ifndef FastIO_H_
-#define FastIO_H_
+#ifndef FASTIO_H_
+#define FASTIO_H_
 
 //*******************************  Библиотеки  ******************************//
 
@@ -22,11 +22,11 @@
 #endif
 
 #ifndef MC_CRITICAL_SECTION_START
-  #define MC_CRITICAL_SECTION_START  cli();         
+  #define MC_CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();         
 #endif
 
 #ifndef MC_CRITICAL_SECTION_END
-  #define MC_CRITICAL_SECTION_END    sei();
+  #define MC_CRITICAL_SECTION_END    SREG = _sreg;
 #endif
 
 #define MC_READ_PIN_(IO) ((bool)(DIO ## IO ## _RPORT & MC_MASK_PIN(DIO ## IO ## _PIN)))
@@ -1614,5 +1614,5 @@
   #error Pins for this chip not defined in arduino.h! If you write an appropriate pin definition and have this firmware work on your chip, please submit a pull request
 #endif
 
-#endif /* FastIO_H_ */
+#endif /* FASTIO_H_ */
 

@@ -20,11 +20,11 @@
 
 //*********************  Макросы для атомарных операций  ********************//
 #ifndef MC_CRITICAL_SECTION_START
-  #define MC_CRITICAL_SECTION_START  cli();      
+  #define MC_CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();      
 #endif
 
 #ifndef MC_CRITICAL_SECTION_END     
-  #define MC_CRITICAL_SECTION_END    sei();
+  #define MC_CRITICAL_SECTION_END    SREG = _sreg;
 #endif
 //*********************  /Макросы для атомарных операций  *******************//
 
@@ -73,19 +73,22 @@
 #define BTN_6_PIN            13
 
 // Серва управление наклоном камеры.
-#define CAMERA_TILT_SERVO_PIN                      9    
+#define CAMERA_TILT_SERVO_PIN                      9 
+
+// Серва управление наклоном руля высоты.
+#define ELEVATOR_TILT_SERVO_PIN                    47
 
 // Тяговый мотор правый.
-#define ESC_MOTOR_RIGHT_PIN                       24
+#define ESC_MOTOR_RIGHT_PIN                        2
 
 // Тяговый мотор левый.
-#define ESC_MOTOR_LEFT_PIN                        25          
+#define ESC_MOTOR_LEFT_PIN                         3          
 
 // Мотор подъема\спуска задний. 
-#define ESC_MOTOR_UP_PIN                          23
+#define ESC_MOTOR_UP_PIN                           5
 
 // Мотор подъема\спуска передний.
-#define ESC_MOTOR_LAG_PIN                         22
+#define ESC_MOTOR_LAG_PIN                          6
 
 //****************************  /Объявление пинов  **************************//
 
