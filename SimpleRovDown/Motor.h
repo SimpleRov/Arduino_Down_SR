@@ -9,6 +9,10 @@ void InitEscServoMotor();
 
 static void SetupTimer1ForServo();
 
+void SetNewValueServo(uint8_t servoNubmer, uint16_t newValue);
+
+void SetNewValueESC(uint8_t escNubmer, uint16_t newValue);
+
 static void SetupTimer3ForESC();
 
 static void SetupTimer4ForESC();

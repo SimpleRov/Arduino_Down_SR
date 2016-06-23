@@ -15,7 +15,7 @@
 #define SERVO_CYCLE 20000U
 
 // Угол поворота сервы (1 тик таймера 0,004ms, нетральное положение 0,6ms).
-volatile uint16_t servosAngles[2] = {CAMERA_TILT_SERVO_BEGIN,ELEVATOR_TILT_SERVO_BEGIN};
+volatile uint16_t servosAngles[2] = {CAMERA_TILT_SERVO_BEGIN<<1,ELEVATOR_TILT_SERVO_BEGIN<<1};
 
 // Переменная номер шага для прерывния TIMER1_COMPA_vect.
 volatile uint8_t servoTakt = 0;
@@ -146,6 +146,35 @@ ISR(TIMER1_COMPA_vect)
     servoTakt = 0;
   }
 };
+
+void SetNewValueServo(uint8_t servoNubmer, uint16_t newValue)
+{
+  MC_CRITICAL_SECTION_START
+  servosAngles[servoNubmer] = newValue<<1;
+  MC_CRITICAL_SECTION_END
+}
+
+void SetNewValueESC(uint8_t escNubmer, uint16_t newValue)
+{
+  MC_CRITICAL_SECTION_START
+  if (!escNubmer)
+  {
+    OCR3A = newValue<<1;
+  }
+  else if (escNubmer == 1)
+  {
+    OCR3B = newValue<<1;
+  }
+  else if (escNubmer == 2)
+  {
+    OCR3C = newValue<<1;
+  }
+  else if (escNubmer == 3)
+  {
+    OCR4A = newValue<<1;
+  }
+  MC_CRITICAL_SECTION_END
+}
 
 static void SetupTimer3ForESC()
 {
